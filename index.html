@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>CARGA+ Treino</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f0622a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CARGA+">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;1,600&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0d0d0f;
+  --surface: #141417;
+  --surface2: #1a1a1f;
+  --border: #26262e;
+  --border2: #32323c;
+  --text: #f2f0ec;
+  --muted: #5c5c6e;
+  --muted2: #8888a0;
+  --push: #f0622a;
+  --pull: #4a90e8;
+  --legs: #2ec97a;
+  --upper: #c45ef0;
+  --lower: #f0c42a;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --radius: 8px;
+  --accent: var(--push);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { height: 100%; background: var(--bg); }
+body {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  color: var(--text);
+  background: var(--bg);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── TOP BAR ── */
+.top-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.1rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  z-index: 10;
+}
+.app-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1;
+}
+.top-date { font-size: 0.66rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.15rem; }
+.icon-btn {
+  width: 34px; height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--muted2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.15s;
+  -webkit-user-select: none; user-select: none;
+}
+.icon-btn:active { background: var(--surface2); color: var(--text); }
+
+/* ── DAY TABS ── */
+.day-tabs {
+  flex-shrink: 0;
+  display: flex;
+  padding: 0.55rem 0.9rem;
+  gap: 0.35rem;
+  overflow-x: auto;
+  background: var(--bg);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.day-tabs::-webkit-scrollbar { display: none; }
+.day-tab {
+  flex-shrink: 0;
+  padding: 0.38rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  -webkit-user-select: none; user-select: none;
+}
+.day-tab.done::after {
+  content: '';
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--success);
+}
+.day-tab[data-day="push"].active   { background: var(--push);  color: #fff; border-color: var(--push);  }
+.day-tab[data-day="pull"].active   { background: var(--pull);  color: #fff; border-color: var(--pull);  }
+.day-tab[data-day="legs"].active   { background: var(--legs);  color: #000; border-color: var(--legs);  }
+.day-tab[data-day="upper"].active  { background: var(--upper); color: #fff; border-color: var(--upper); }
+.day-tab[data-day="lower"].active  { background: var(--lower); color: #000; border-color: var(--lower); }
+.day-tab[data-day="history"].active{ background: var(--surface2); color: var(--text); border-color: var(--border2); }
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2rem;
+}
+
+/* ── HOME ── */
+.home-view { padding: 1.25rem 0.9rem 2rem; }
+.home-greeting { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.25rem; }
+.home-title { font-family: 'Barlow Condensed', sans-serif; font-size: 2.2rem; font-weight: 800; letter-spacing: 0.04em; line-height: 1; margin-bottom: 1.25rem; }
+.home-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.home-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s;
+  position: relative;
+  overflow: hidden;
+  -webkit-user-select: none; user-select: none;
+}
+.home-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.home-card[data-day="push"]::before   { background: var(--push); }
+.home-card[data-day="pull"]::before   { background: var(--pull); }
+.home-card[data-day="legs"]::before   { background: var(--legs); }
+.home-card[data-day="upper"]::before  { background: var(--upper); }
+.home-card[data-day="lower"]::before  { background: var(--lower); }
+.home-card:active { transform: scale(0.96); background: var(--surface2); }
+.home-card.done-card { border-color: rgba(34,197,94,0.2); }
+.home-card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1; margin-bottom: 0.2rem; }
+.home-card-sub { font-size: 0.65rem; color: var(--muted); }
+.home-card-excount { margin-top: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem; color: var(--muted2); }
+.home-card-done { position: absolute; top: 0.5rem; right: 0.5rem; font-size: 0.62rem; color: var(--success); font-weight: 600; }
+.home-history-card { grid-column: span 2; display: flex; align-items: center; gap: 0.75rem; }
+.home-history-card .home-card-title { color: var(--muted2); }
+
+/* ── INSTALL BANNER ── */
+.install-banner {
+  margin: 0.75rem 0.9rem 0;
+  background: linear-gradient(135deg, rgba(240,98,42,0.12), rgba(240,98,42,0.05));
+  border: 1px solid rgba(240,98,42,0.3);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.install-banner-text { font-size: 0.78rem; color: var(--muted2); line-height: 1.4; }
+.install-banner-text strong { color: var(--text); display: block; margin-bottom: 0.1rem; font-weight: 500; }
+.install-btn {
+  flex-shrink: 0;
+  padding: 0.45rem 0.9rem;
+  background: var(--push);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.install-btn:active { opacity: 0.8; }
+.install-banner.hidden { display: none; }
+
+/* ── DAY VIEW ── */
+.section-header { padding: 0.9rem 1rem 0.45rem; display: flex; align-items: baseline; gap: 0.6rem; }
+.section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.45rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.section-sub { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+.session-bar {
+  margin: 0 0.9rem 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.session-bar-info { font-size: 0.7rem; color: var(--muted2); }
+.session-bar-info strong { color: var(--text); font-weight: 500; }
+.save-btn {
+  padding: 0.35rem 0.85rem;
+  border-radius: 4px;
+  border: none;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  transition: all 0.15s;
+  -webkit-user-select: none; user-select: none;
+}
+.save-btn:active { opacity: 0.8; transform: scale(0.97); }
+.save-btn.saved { background: var(--success); }
+
+/* ── EXERCISE CARD ── */
+.ex-card {
+  margin: 0 0.9rem 0.45rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.ex-card.has-sets { border-color: var(--border2); }
+.ex-card.completed { border-color: rgba(34,197,94,0.4); }
+
+.ex-header {
+  display: flex;
+  align-items: center;
+  padding: 0.7rem 0.85rem;
+  gap: 0.55rem;
+  cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+  min-height: 52px;
+}
+.ex-priority {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 0.7rem;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ex-priority.p1 { background: rgba(240,98,42,0.15); color: var(--push); border: 1px solid rgba(240,98,42,0.35); }
+.ex-priority.p2 { background: var(--surface2); color: var(--muted2); border: 1px solid var(--border); }
+
+.ex-info { flex: 1; min-width: 0; }
+.ex-name { font-size: 0.875rem; font-weight: 500; color: var(--text); line-height: 1.25; }
+.ex-meta { display: flex; gap: 0.3rem; margin-top: 0.18rem; flex-wrap: wrap; }
+.ex-tag {
+  font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 0.08rem 0.3rem; border-radius: 2px;
+  border: 1px solid var(--border); color: var(--muted);
+}
+.ex-tag.rir0 { color: var(--push); border-color: rgba(240,98,42,0.3); background: rgba(240,98,42,0.07); }
+.ex-tag.muscle { color: var(--muted2); }
+
+.ex-right { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
+.ex-sets-count { font-family: 'Barlow Condensed', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--muted); min-width: 26px; text-align: right; }
+.ex-sets-count.has { color: var(--success); }
+.ex-tip-btn {
+  width: 30px; height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface2);
+  color: var(--muted2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 0.78rem;
+  -webkit-user-select: none; user-select: none;
+}
+.ex-tip-btn:active { background: var(--border); }
+.ex-chevron { color: var(--muted); font-size: 0.62rem; transition: transform 0.2s; flex-shrink: 0; }
+.ex-card.open .ex-chevron { transform: rotate(180deg); }
+
+/* ── SET LOG ── */
+.set-log { display: none; padding: 0 0.85rem 0.7rem; border-top: 1px solid var(--border); }
+.ex-card.open .set-log { display: block; }
+
+.last-session { padding: 0.45rem 0; margin-bottom: 0.45rem; border-bottom: 1px dashed var(--border); }
+.last-session-label { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.25rem; }
+.last-sets { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.last-set-chip { font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 3px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); }
+
+.sets-header { display: grid; grid-template-columns: 24px 1fr 1fr 28px; gap: 0.35rem; padding: 0.35rem 0 0.15rem; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.set-row { display: grid; grid-template-columns: 24px 1fr 1fr 28px; gap: 0.35rem; margin-bottom: 0.3rem; align-items: center; animation: slideIn 0.18s ease; }
+@keyframes slideIn { from { opacity:0; transform: translateY(-4px); } to { opacity:1; transform: translateY(0); } }
+
+.set-num { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--muted); text-align: center; }
+.set-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.4rem 0.25rem;
+  width: 100%;
+  transition: border-color 0.15s;
+  -moz-appearance: textfield;
+  -webkit-appearance: none;
+}
+.set-input::-webkit-outer-spin-button,
+.set-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.set-input:focus { outline: none; border-color: var(--border2); background: var(--bg); }
+.set-input::placeholder { color: var(--muted); }
+.set-input.filled { border-color: var(--border2); }
+.set-done {
+  width: 28px; height: 28px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 0.72rem;
+  color: var(--muted);
+  transition: all 0.12s;
+  margin: 0 auto;
+  -webkit-user-select: none; user-select: none;
+}
+.set-done.checked { background: var(--success); border-color: var(--success); color: #fff; }
+.set-row.done-row .set-input { opacity: 0.45; }
+
+.sets-actions { display: flex; gap: 0.35rem; margin-top: 0.55rem; }
+.add-set-btn {
+  flex: 1;
+  padding: 0.48rem;
+  border: 1px dashed var(--border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted2);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-user-select: none; user-select: none;
+}
+.add-set-btn:active { background: var(--surface2); border-style: solid; }
+.remove-set-btn {
+  padding: 0.48rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+}
+.remove-set-btn:active { background: rgba(239,68,68,0.1); border-color: var(--danger); color: var(--danger); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.72);
+  z-index: 100;
+  display: none;
+  align-items: flex-end;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+.modal-overlay.open { display: flex; animation: fadeIn 0.18s ease; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.modal {
+  width: 100%;
+  max-height: 88dvh;
+  background: var(--surface);
+  border-top: 1px solid var(--border2);
+  border-radius: 14px 14px 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.22s ease;
+  padding-bottom: var(--safe-bottom);
+}
+@keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-handle { width: 34px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0.65rem auto 0; flex-shrink: 0; }
+.modal-header { padding: 0.65rem 1.1rem 0.65rem; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; flex-shrink: 0; }
+.modal-tag { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.15rem; }
+.modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 700; letter-spacing: 0.04em; line-height: 1.1; }
+.modal-muscle { font-size: 0.7rem; color: var(--muted2); margin-top: 0.15rem; }
+.modal-close { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface2); color: var(--muted2); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; }
+.modal-body { overflow-y: auto; padding: 0.9rem 1.1rem 1.5rem; flex: 1; -webkit-overflow-scrolling: touch; }
+
+.exec-section { margin-bottom: 1.1rem; }
+.exec-section-title { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.55rem; display: flex; align-items: center; gap: 0.4rem; }
+.exec-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.exec-tip { display: flex; gap: 0.55rem; align-items: flex-start; margin-bottom: 0.45rem; }
+.exec-tip-num { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.78rem; min-width: 16px; line-height: 1.6; }
+.exec-tip-text { font-size: 0.83rem; color: var(--muted2); line-height: 1.6; }
+.exec-tip-text strong { color: var(--text); font-weight: 500; }
+
+.exec-cue { display: flex; gap: 0.45rem; align-items: center; padding: 0.45rem 0.65rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; margin-bottom: 0.3rem; }
+.exec-cue-icon { font-size: 0.85rem; }
+.exec-cue-text { font-size: 0.8rem; color: var(--text); }
+
+.exec-warning { background: rgba(240,98,42,0.08); border: 1px solid rgba(240,98,42,0.25); border-radius: 5px; padding: 0.55rem 0.75rem; }
+.exec-warning-label { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--push); margin-bottom: 0.2rem; }
+.exec-warning-text { font-size: 0.78rem; color: var(--muted2); line-height: 1.5; }
+
+/* ── HISTORY ── */
+.history-view { padding: 0.5rem 0.9rem 2rem; }
+.history-day-section { margin-bottom: 1.35rem; }
+.history-day-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.45rem; display: flex; align-items: center; gap: 0.45rem; }
+.history-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.history-session { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.7rem 0.85rem; margin-bottom: 0.35rem; }
+.history-session-date { font-size: 0.67rem; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 0.45rem; text-transform: uppercase; }
+.history-ex { margin-bottom: 0.45rem; }
+.history-ex-name { font-size: 0.8rem; font-weight: 500; margin-bottom: 0.2rem; }
+.history-ex-sets { display: flex; gap: 0.22rem; flex-wrap: wrap; }
+.history-chip { font-size: 0.68rem; padding: 0.12rem 0.42rem; border-radius: 3px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); }
+.history-chip.done { border-color: rgba(34,197,94,0.3); color: var(--success); background: rgba(34,197,94,0.06); }
+
+.no-history { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.82rem; }
+.no-history-icon { font-size: 2.2rem; margin-bottom: 0.65rem; opacity: 0.35; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: calc(1.5rem + var(--safe-bottom));
+  left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--success);
+  color: #fff;
+  padding: 0.55rem 1.1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  z-index: 200;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <div class="app-name">CARGA+</div>
+    <div class="top-date" id="topDate">—</div>
+  </div>
+  <div class="icon-btn" onclick="goHome()" title="Home">⌂</div>
+</div>
+
+<div class="day-tabs" id="dayTabs">
+  <button class="day-tab" data-day="push"    onclick="selectDay('push')">Push</button>
+  <button class="day-tab" data-day="pull"    onclick="selectDay('pull')">Pull</button>
+  <button class="day-tab" data-day="legs"    onclick="selectDay('legs')">Legs</button>
+  <button class="day-tab" data-day="upper"   onclick="selectDay('upper')">Upper</button>
+  <button class="day-tab" data-day="lower"   onclick="selectDay('lower')">Lower</button>
+  <button class="day-tab" data-day="history" onclick="selectDay('history')">📊 Hist.</button>
+</div>
+
+<div class="main" id="main"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div>
+        <div class="modal-tag" id="modalTag">Execução</div>
+        <div class="modal-title" id="modalTitle">—</div>
+        <div class="modal-muscle" id="modalMuscle">—</div>
+      </div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Treino salvo!</div>
+
+<script>
+// ══════════════════════════════════════════
+// SERVICE WORKER REGISTRATION
+// ══════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+// ══════════════════════════════════════════
+// PWA INSTALL PROMPT
+// ══════════════════════════════════════════
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showInstallBanner();
+});
+
+function showInstallBanner() {
+  // Banner will be shown inside home view
+}
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; hideInstallBanner(); });
+  }
+}
+
+function hideInstallBanner() {
+  const b = document.getElementById('installBanner');
+  if (b) b.classList.add('hidden');
+  localStorage.setItem('installDismissed', '1');
+}
+
+// ══════════════════════════════════════════
+// PROGRAM DATA
+// ══════════════════════════════════════════
+const DAYS = {
+  push:  { name: 'Push',  color: '#f0622a', textColor: '#fff' },
+  pull:  { name: 'Pull',  color: '#4a90e8', textColor: '#fff' },
+  legs:  { name: 'Legs',  color: '#2ec97a', textColor: '#000' },
+  upper: { name: 'Upper', color: '#c45ef0', textColor: '#fff' },
+  lower: { name: 'Lower', color: '#f0c42a', textColor: '#000' },
+};
+
+const PROGRAM = {
+  push: [
+    { id:'p1', priority:1, rir:'0 RIR', name:'Supino Inclinado Smith', muscle:'Peito Superior · Deltóide Ant. · Tríceps', shortMuscle:'Peito Superior',
+      tips:[{text:'Banco a <strong>30–45°</strong>. Ângulos maiores ativam mais deltóide anterior.'},{text:'Retraia e deprima as escápulas antes de tirar a barra. <strong>Mantenha durante todo o movimento.</strong>'},{text:'Desça até a <strong>parte superior do peitoral</strong>. Sinta o alongamento máximo.'},{text:'Cotovelos a ~45–60° do tronco. Nunca totalmente abertos.'},{text:'Respiração profunda antes de cada rep (Valsalva) para estabilizar o core.'}],
+      cues:['Empurrar o banco com as costas','Peito para cima, queixo no peito','Apertar o peitoral no topo'],
+      warning:'No Smith, alinhe a trajetória da barra sobre a parte superior do peito. Não deixe os cotovelos voarem para os lados.' },
+    { id:'p2', priority:2, rir:'1/0 RIR', name:'Voador', muscle:'Peito (Adução)', shortMuscle:'Peito — adução',
+      tips:[{text:'<strong>Máxima amplitude</strong>: vá o máximo que o ombro permitir sem dor. Maior tensão passiva no peitoral.'},{text:'Leve flexão dos cotovelos <strong>fixa durante todo o movimento</strong>.'},{text:'Fechamento como uma "abraçada" — aproximar cotovelos, não mãos.'},{text:'Parar quando os pulsos estiverem sobre o esterno.'}],
+      cues:['Abraçar uma árvore','Sentir o peitoral na abertura','Controlar a descida (2–3s)'],
+      warning:'Se sentir desconforto anterior no ombro na abertura máxima, reduza a amplitude ligeiramente.' },
+    { id:'p3', priority:2, rir:'1/0 RIR', name:'Paralela', muscle:'Peito Inferior · Tríceps', shortMuscle:'Peito Inferior',
+      tips:[{text:'<strong>Incline o tronco ~20–30°</strong> à frente para direcionar ao peito inferior.'},{text:'Cotovelos abrem levemente (não totalmente) durante a descida.'},{text:'Desça até sentir <strong>bom alongamento no peito inferior</strong>.'},{text:'No topo, não trave completamente os cotovelos.'}],
+      cues:['Peito para baixo na descida','Empurrar para cima E para fora','Comprimir o peitoral no topo'],
+      warning:'Evite descer demais se sentir impingimento no ombro.' },
+    { id:'p4', priority:2, rir:'1/0 RIR', name:'Elevação Lateral Halteres', muscle:'Deltóide Lateral', shortMuscle:'Deltóide Lateral',
+      tips:[{text:'Incline levemente o tronco (~10°) para alinhar melhor o deltóide lateral.'},{text:'Cotovelos levemente flexionados e <strong>fixos</strong>. O movimento vem do ombro.'},{text:'Suba até a <strong>altura do ombro</strong>.'},{text:'Controle a descida lentamente (2–3s). Excêntrica fundamental.'},{text:'Indicador pode apontar levemente para baixo ("despejar garrafa").'}],
+      cues:['Cotovelo lidera o movimento','Subir até a lateral do ombro','Descer com controle'] },
+    { id:'p5', priority:1, rir:'0 RIR', name:'Tríceps Carter', muscle:'Tríceps (Longa Porção)', shortMuscle:'Tríceps — longa porção',
+      tips:[{text:'Halteres em pegada neutra, deite no banco. Dobre os cotovelos e leve <strong>atrás da cabeça</strong>.'},{text:'<strong>Ao mesmo tempo, incline os cotovelos para fora</strong> — combinação de french press + pullover.'},{text:'Máximo de alongamento possível. Pausa 1 segundo.'},{text:'Mantenha cotovelos razoavelmente próximos.'}],
+      cues:['Tríceps em máximo alongamento','Pausa 1s no fundo','Cotovelos juntos no topo'],
+      warning:'Se sentir desconforto no cotovelo, reduza a amplitude de alongamento.' },
+    { id:'p6', priority:2, rir:'1/0 RIR', name:'Extensão de Punho Cross', muscle:'Antebraço — Extensores', shortMuscle:'Extensores do Antebraço',
+      tips:[{text:'Antebraço apoiado, punho livre fora do apoio.'},{text:'Deixe o punho cair ao máximo, depois estenda completamente.'},{text:'Lento e controlado. Antebraços respondem bem ao tempo sob tensão.'}],
+      cues:['Só o punho se move','Amplitude máxima','Controle total'] },
+    { id:'p7', priority:1, rir:'0 RIR', name:'Abdominal Supra Cross', muscle:'Abdômen — Porção Superior', shortMuscle:'Reto Abdominal (sup)',
+      tips:[{text:'Polia alta, ajoelhado. A contração é <strong>flexão da coluna</strong>, não do quadril.'},{text:'Desça controlado até o abdômen alongar, depois contraia ao máximo.'},{text:'Pausa de 1 segundo na contração máxima.'}],
+      cues:['Costelas em direção ao umbigo','Quadril fixo','Contração máxima no fundo'] },
+  ],
+  pull: [
+    { id:'pu1', priority:2, rir:'1/0 RIR', name:'Remada Articulada Pronada', muscle:'Costas (Espessura) · Rombóides · Trapézio Médio', shortMuscle:'Costas — espessura',
+      tips:[{text:'Tronco oscila levemente junto — essa é a "articulação".'},{text:'<strong>Cotovelo NÃO precisa passar do tronco.</strong> Pare na lateral.'},{text:'Pense em esmagar uma noz entre as escápulas na contração.'},{text:'Controle a fase excêntrica — escápulas abrem completamente.'}],
+      cues:['Escápulas se aproximam no topo','Cotovelo lateral ao tronco','Abrir as costas no fundo'] },
+    { id:'pu2', priority:1, rir:'0 RIR', name:'Puxada Frontal Neutra', muscle:'Grande Dorsal · Bíceps · Teres Maior', shortMuscle:'Grande Dorsal',
+      tips:[{text:'<strong>Leve inclinação do tronco para trás</strong> (~15°). Puxe em direção ao esterno.'},{text:'Inicie "abrindo as axilas" — não deixe o bíceps dominar.'},{text:'No topo, estenda completamente os braços para maximizar o alongamento.'},{text:'Pegada neutra: maior carga, menos estresse no cotovelo.'}],
+      cues:['Puxar com os cotovelos','Peito ao encontro da barra','Ombros PARA BAIXO sempre'] },
+    { id:'pu3', priority:2, rir:'1/0 RIR', name:'Rosca Direta Uni Halteres', muscle:'Bíceps Braquial · Braquiorradial', shortMuscle:'Bíceps',
+      tips:[{text:'<strong>Supinar o punho</strong> durante a flexão — gire a palma para cima conforme sobe.'},{text:'Cotovelo fixo ao lado do tronco.'},{text:'Desça completamente. O alongamento é fundamental.'}],
+      cues:['Cotovelo fixo','Supinar o punho subindo','Descer completamente'] },
+    { id:'pu4', priority:2, rir:'1/0 RIR', name:'Pulldown Unilateral', muscle:'Grande Dorsal · Bíceps', shortMuscle:'Grande Dorsal (uni)',
+      tips:[{text:'Incline o tronco levemente para o lado oposto para <strong>aumentar o alongamento do grande dorsal</strong>.'},{text:'Puxe em arco até o cotovelo apontar para baixo.'},{text:'Retorno lento: sentir o dorsal alongar.'},{text:'Ombro do lado da puxada não "sobe" para compensar.'}],
+      cues:['Axila aponta para baixo no pico','Retorno lento e controlado','Ombro para baixo sempre'] },
+    { id:'pu5', priority:2, rir:'1/0 RIR', name:'Kelso Shrugs', muscle:'Trapézio Médio · Rombóides · Infraespinhal', shortMuscle:'Trapézio Médio',
+      tips:[{text:'Qualquer máquina de costas. O foco é <strong>retração escapular pura</strong>.'},{text:'Braços levemente flexionados e estáticos. <strong>Apenas retraia as escápulas.</strong>'},{text:'Segure 2 segundos na contração máxima.'},{text:'Protrair completamente no retorno — esse é o alongamento.'}],
+      cues:['Apertar escápulas por 2s','Cotovelos quase estáticos','Protrair completamente no fundo'] },
+    { id:'pu6', priority:1, rir:'0 RIR', name:'Crucifixo Inverso Halteres', muscle:'Deltóide Posterior · Rombóides', shortMuscle:'Deltóide Posterior',
+      tips:[{text:'Tronco a 90° (paralelo ao chão). <strong>Movimento é horizontal</strong>, como abrir os braços.'},{text:'Cotovelos levemente dobrados e fixos.'},{text:'No ponto alto, mãos na altura dos ombros — não acima da cabeça.'},{text:'Pense em apontar os cotovelos para o teto.'},{text:'Excêntrica lenta: 3–4 segundos.'}],
+      cues:['Cotovelos apontam para o teto','Não usar o trapézio','Excêntrica lenta'] },
+    { id:'pu7', priority:2, rir:'1/0 RIR', name:'Abdominal Infra', muscle:'Abdômen — Porção Inferior', shortMuscle:'Reto Abdominal (inf)',
+      tips:[{text:'Flexione o quadril trazendo os joelhos ao peito com controle.'},{text:'Incline a pelve posteriormente no topo — garante ativação do abdômen inferior.'},{text:'Na descida, não deixe as pernas caírem.'}],
+      cues:['Pelve posterior no topo','Umbigo para dentro','Controlar a descida'] },
+    { id:'pu8', priority:1, rir:'0 RIR', name:'Flexão de Punho Cross', muscle:'Antebraço — Flexores', shortMuscle:'Flexores do Antebraço',
+      tips:[{text:'Antebraço apoiado (palma para cima). Punho livre.'},{text:'<strong>Estenda o punho completamente</strong> para baixo para alongar os flexores.'},{text:'Flexione completamente para cima, pausa de 1 segundo.'},{text:'Apenas o punho se move.'}],
+      cues:['Apenas o punho se move','Amplitude total','Pausa na contração'] },
+  ],
+  legs: [
+    { id:'l1', priority:2, rir:'1/0 RIR', name:'Panturrilha Uni Leg Press 45', muscle:'Gastrocnêmio · Sóleo', shortMuscle:'Panturrilha',
+      tips:[{text:'Metade da frente do pé na plataforma. Calcanhar suspenso.'},{text:'<strong>Máxima amplitude</strong>: calcanhar desce ao máximo antes de subir.'},{text:'No ponto alto, ponta do pé máxima — não corte a contração.'},{text:'Excêntrica lenta: mínimo 2 segundos.'}],
+      cues:['Calcanhar abaixo da plataforma','Ponta do pé no topo','Excêntrica lenta'] },
+    { id:'l2', priority:2, rir:'1/0 RIR', name:'Leg Press 45', muscle:'Quadríceps · Glúteos · Isquiotibiais', shortMuscle:'Quadríceps · Glúteos',
+      tips:[{text:'<strong>Máximo de flexão de joelhos</strong> sem que a lombar saia do banco.'},{text:'Pés no centro da plataforma. Mais alto = mais glúteo. Mais baixo = mais quad.'},{text:'Não trave os joelhos no topo.'},{text:'Empurre por toda a superfície do pé.'}],
+      cues:['Lombar grudada no banco','Joelhos alinhados com os pés','Empurrar pelo calcanhar'],
+      warning:'Se a lombar sair do banco, você passou da amplitude ideal. Reduza.' },
+    { id:'l3', priority:2, rir:'1/0 RIR', name:'Stiff', muscle:'Isquiotibiais · Glúteo Máximo · Eretores', shortMuscle:'Isquiotibiais',
+      tips:[{text:'<strong>Não dobrar muito os joelhos</strong>: quase estendidos, diferente do deadlift.'},{text:'Quadril vai para trás — "hip hinge", não curvatura da coluna.'},{text:'Desça até o máximo de tensão nos isquiotibiais.'},{text:'Coluna neutra (leve arco na lombar) durante todo o movimento.'},{text:'Pense em "empurrar o quadril para trás", não em "curvar o tronco".'}],
+      cues:['Quadril para trás','Costas retas — nunca arqueadas','Isquio sob tensão na descida'],
+      warning:'Se sentir mais na lombar do que nos isquiotibiais, você está arredondando as costas. Reduza a amplitude.' },
+    { id:'l4', priority:2, rir:'1/0 RIR', name:'Cadeira Extensora', muscle:'Quadríceps (4 porções)', shortMuscle:'Quadríceps',
+      tips:[{text:'Joelho alinhado com o eixo de rotação da máquina.'},{text:'No topo: <strong>contração máxima e pausa de 1 segundo.</strong>'},{text:'Excêntrica de 2–3 segundos. Não deixe a pilha cair.'},{text:'Pé em dorsiflexão pode aumentar ativação do reto femoral.'}],
+      cues:['Contração máxima e pausa no topo','Joelho alinhado ao pivô','Excêntrica controlada'] },
+    { id:'l5', priority:1, rir:'0 RIR', name:'Mesa Flexora', muscle:'Isquiotibiais (bíceps femoral, semitend., semimembr.)', shortMuscle:'Isquiotibiais',
+      tips:[{text:'Pivô alinhado com o joelho. Apoio próximo ao tornozelo.'},{text:'Quadril levemente inclinado para frente para pré-alongar os isquiotibiais.'},{text:'<strong>Contração máxima</strong> com pausa de 1 segundo.'},{text:'Excêntrica: 3 segundos de descida.'},{text:'Quadril não levanta da mesa.'}],
+      cues:['Quadril colado à mesa','Pausa 1s na contração','Descer em 3 segundos'],
+      warning:'Exercício de prioridade (0 RIR). Execute com máxima intensidade até a falha concêntrica.' },
+    { id:'l6', priority:2, rir:'1/0 RIR', name:'Cadeira Adutora', muscle:'Adutores · Grácil', shortMuscle:'Adutores',
+      tips:[{text:'<strong>Alongue o máximo possível</strong>: maior abertura com controle.'},{text:'Fechamento lento e controlado. Não bata as placas.'},{text:'A posição de maior abertura é a mais eficaz para crescimento dos adutores.'}],
+      cues:['Abertura máxima possível','Sem bater no fechamento','Adutores sob tensão'] },
+    { id:'l7', priority:2, rir:'1/0 RIR', name:'Cadeira Abdutora', muscle:'Glúteo Médio · Glúteo Mínimo · TFL', shortMuscle:'Abdutores',
+      tips:[{text:'<strong>Alongue o máximo possível</strong>: pernas mais fechadas no início para maior pré-estiramento.'},{text:'Abra controlado, pausa 1s no máximo.'},{text:'Retorno lento.'},{text:'Incline ~20° para frente para ativar mais a porção posterior do glúteo médio.'}],
+      cues:['Inclinado ligeiramente para frente','Pausa na abertura máxima','Retorno controlado'] },
+  ],
+  upper: [
+    { id:'u1', priority:1, rir:'0 RIR', name:'Desenvolvimento Neutro', muscle:'Deltóide · Tríceps · Trapézio', shortMuscle:'Deltóide',
+      tips:[{text:'Pegada neutra reduz estresse no manguito rotador.'},{text:'Desça até o nível dos ombros ou levemente abaixo.'},{text:'No topo, <strong>não trave completamente</strong> para manter tensão.'},{text:'Core ativado, lombar neutra — não arqueie.'},{text:'Caminho em linha reta para cima (vista de frente).'}],
+      cues:['Cotovelos levemente à frente no fundo','Empurrar verticalmente','Core ativado'] },
+    { id:'u2', priority:2, rir:'1/0 RIR', name:'Puxada Frontal Pronada', muscle:'Grande Dorsal · Bíceps · Teres Maior', shortMuscle:'Grande Dorsal', referenceLoad:38,
+      tips:[{text:'Pegada pronada ativa ligeiramente mais infraespinhal e teres maior.'},{text:'Leve inclinação do tronco para trás (~10–15°). Puxe em direção ao peitoral.'},{text:'Ombros não encolhem no topo — escápulas deprimidas.'},{text:'Carga de referência: <strong>38 kg</strong>.'}],
+      cues:['Ombros para baixo sempre','Puxar pelos cotovelos','Peito ao encontro da barra'] },
+    { id:'u3', priority:2, rir:'1/0 RIR', name:'Supino Reto Máquina', muscle:'Peito Médio · Tríceps · Deltóide Anterior', shortMuscle:'Peito Médio',
+      tips:[{text:'Assento: pegadores na <strong>altura do meio do peitoral</strong>.'},{text:'Escápulas retraídas e deprimidas. Mantenha durante todo o movimento.'},{text:'Excêntrica: 2–3 segundos de volta.'},{text:'Cotovelos não descem abaixo do alinhamento do peitoral.'}],
+      cues:['Escápulas retraídas','Comprimir o peito no topo','Excêntrica controlada'] },
+    { id:'u4', priority:2, rir:'1/0 RIR', name:'Remada Baixa Neutra', muscle:'Costas (Espessura) · Bíceps · Rombóides', shortMuscle:'Costas — espessura', referenceLoad:45,
+      tips:[{text:'Coluna neutra (leve arco na lombar). Não curve.'},{text:'Puxe em direção ao umbigo, cotovelos colados ao tronco.'},{text:'Na contração: <strong>retraia e deprima as escápulas</strong> — pausa 1 segundo.'},{text:'No retorno, ombros protraem para alongar os rombóides.'},{text:'Carga de referência: <strong>45 kg</strong>.'}],
+      cues:['Cotovelos ao corpo','Escápulas juntas no topo','Ombros abrem no fundo'] },
+    { id:'u5', priority:2, rir:'1/0 RIR', name:'Elevação Lateral Cross', muscle:'Deltóide Lateral', shortMuscle:'Deltóide Lateral',
+      tips:[{text:'<strong>Polia na altura do quadril</strong> — mantém deltóide lateral sob tensão desde o alongamento.'},{text:'Cabo pela frente do corpo. Levante o braço oposto à polia em arco lateral.'},{text:'Cotovelo levemente flexionado e fixo. Suba até a altura do ombro.'},{text:'Explore o alongamento no início do movimento.'}],
+      cues:['Polia na altura do quadril','Cotovelo lidera','Sentir o delta no alongamento'] },
+    { id:'u6', priority:2, rir:'1/0 RIR', name:'Tríceps Pulley Barra W', muscle:'Tríceps (3 porções)', shortMuscle:'Tríceps',
+      tips:[{text:'Barra W reduz estresse no punho vs barra reta.'},{text:'Cotovelos fixos ao lado do corpo — <strong>apenas o antebraço se move.</strong>'},{text:'Estenda completamente os cotovelos no ponto baixo.'},{text:'Excêntrica: 2 segundos. Não deixe a carga levantar os cotovelos.'}],
+      cues:['Cotovelos imóveis','Extensão total no fundo','Excêntrica 2s'] },
+    { id:'u7', priority:1, rir:'0 RIR', name:'Rosca Scott Máquina', muscle:'Bíceps Braquial · Braquial', shortMuscle:'Bíceps',
+      tips:[{text:'<strong>Alongue tudo</strong>: braço estendido sobre o banco Scott em máximo pré-estiramento.'},{text:'A máquina fixa o cotovelo e isola o bíceps — use amplitude completa.'},{text:'Excêntrica completamente controlada.'},{text:'Pausa de 1 segundo na contração máxima.'}],
+      cues:['Amplitude TOTAL','Pausa no topo','Excêntrica muito lenta'] },
+    { id:'u8', priority:1, rir:'0 RIR', name:'Abdominal Supra', muscle:'Abdômen — Porção Superior', shortMuscle:'Reto Abdominal (sup)',
+      tips:[{text:'Deite, joelhos dobrados. <strong>Flexão da coluna</strong>, não uma "sentada".'},{text:'Apenas os ombros saem do chão.'},{text:'Expire no esforço. Pausa de 1 segundo na contração.'}],
+      cues:['Apenas ombros saem do chão','Queixo neutro','Expirar subindo'] },
+  ],
+  lower: [
+    { id:'lo1', priority:2, rir:'1/0 RIR', name:'Pélvica Máquina', muscle:'Glúteo Máximo · Isquiotibiais (leve)', shortMuscle:'Glúteos',
+      tips:[{text:'Almofada sobre os quadris, não no abdômen.'},{text:'No topo: <strong>contraia o glúteo maximamente</strong> — "apertar uma noz entre as nádegas".'},{text:'Excêntrica: 2–3 segundos.'},{text:'Versão livre (barra, resistência) também válida.'}],
+      cues:['Quadril sobe até à linha do tronco','Glúteo apertado no topo','Não hiperstender a lombar'] },
+    { id:'lo2', priority:2, rir:'1/0 RIR', name:'Agachamento Smith', muscle:'Quadríceps · Glúteos · Isquiotibiais', shortMuscle:'Quadríceps · Glúteos',
+      tips:[{text:'<strong>Máximo de flexão de joelhos</strong> mantendo a lombar neutra.'},{text:'No Smith, pés podem estar ligeiramente à frente do normal.'},{text:'Joelhos acompanham a direção dos pés.'},{text:'Inspire fundo antes de descer (Valsalva), expire subindo.'},{text:'Não arredonde a lombar no fundo.'}],
+      cues:['Joelhos acompanham os pés','Lombar neutra no fundo','Empurrar o chão para baixo'],
+      warning:'Se ocorrer "butt wink" (lombar arredonda no fundo), reduza a amplitude até melhorar a mobilidade.' },
+    { id:'lo3', priority:2, rir:'1/0 RIR', name:'Cadeira Extensora', muscle:'Quadríceps (4 porções)', shortMuscle:'Quadríceps',
+      tips:[{text:'Eixo da máquina alinhado com o joelho.'},{text:'Contração máxima no topo, pausa 1 segundo.'},{text:'Excêntrica de 2–3 segundos.'}],
+      cues:['Extensão total no topo','Pausa 1s na contração','Excêntrica controlada'] },
+    { id:'lo4', priority:2, rir:'1/0 RIR', name:'Cadeira Flexora', muscle:'Isquiotibiais · Bíceps Femoral', shortMuscle:'Isquiotibiais',
+      tips:[{text:'Pivô alinhado com o joelho. Apoio próximo ao tornozelo.'},{text:'Flexione até o calcanhar quase encostar na bunda.'},{text:'Excêntrica: 3 segundos de descida.'},{text:'Cadeira sentada coloca a longa porção em maior pré-estiramento.'}],
+      cues:['Amplitude máxima','Excêntrica 3s','Quadril colado à cadeira'] },
+    { id:'lo5', priority:2, rir:'1/0 RIR', name:'Cadeira Adutora', muscle:'Adutores · Grácil', shortMuscle:'Adutores',
+      tips:[{text:'<strong>Alongue o máximo possível</strong>: maior abertura para pré-estiramento máximo.'},{text:'Não bata as pernas no fechamento.'},{text:'Retorno lento: 2–3 segundos reabrindo.'}],
+      cues:['Abertura máxima','Sem bater no fechamento','Retorno controlado'] },
+    { id:'lo6', priority:1, rir:'0 RIR', name:'Abdominal Infra', muscle:'Abdômen — Porção Inferior', shortMuscle:'Reto Abdominal (inf)',
+      tips:[{text:'Joelhos ao peito nas paralelas ou no solo.'},{text:'No ponto alto, incline a pelve posteriormente.'},{text:'Desça lentamente. Não deixe as pernas caírem.'}],
+      cues:['Pelve posterior no topo','Controlar a descida','Umbigo para dentro'] },
+  ],
+};
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let currentDay = null;
+let openCards = new Set();
+let todaySets = { push:{}, pull:{}, legs:{}, upper:{}, lower:{} };
+let savedDays = {};
+
+function today() { return new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' }); }
+function todayKey() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+// ══════════════════════════════════════════
+// STORAGE (localStorage fallback)
+// ══════════════════════════════════════════
+function storageSet(key, val) {
+  try { localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val)); return true; } catch(e) { return false; }
+}
+function storageGet(key) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e) { return null; }
+}
+function storageKeys(prefix) {
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(prefix)) keys.push(k);
+  }
+  return keys.sort();
+}
+
+function saveSession(dayKey) {
+  const key = `carga:session:${dayKey}:${todayKey()}`;
+  const ok = storageSet(key, todaySets[dayKey]);
+  if (ok) savedDays[dayKey] = todayKey();
+  return ok;
+}
+
+function loadTodaySessions() {
+  for (const dayKey of Object.keys(PROGRAM)) {
+    const key = `carga:session:${dayKey}:${todayKey()}`;
+    const data = storageGet(key);
+    if (data) {
+      todaySets[dayKey] = data;
+      savedDays[dayKey] = todayKey();
+    }
+  }
+}
+
+function getAllHistory() {
+  const history = {};
+  for (const dayKey of Object.keys(PROGRAM)) {
+    history[dayKey] = [];
+    const keys = storageKeys(`carga:session:${dayKey}:`).reverse().slice(0, 8);
+    for (const k of keys) {
+      const date = k.split(':')[3];
+      const data = storageGet(k);
+      if (data) history[dayKey].push({ date, data });
+    }
+  }
+  return history;
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('topDate').textContent = today();
+  loadTodaySessions();
+  renderHome();
+  // Mark done tabs
+  for (const dk of Object.keys(savedDays)) { if (savedDays[dk] === todayKey()) markTabDone(dk); }
+});
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function goHome() {
+  currentDay = null;
+  openCards.clear();
+  document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+  renderHome();
+}
+
+function selectDay(day) {
+  currentDay = day;
+  openCards.clear();
+  document.querySelectorAll('.day-tab').forEach(t => t.classList.toggle('active', t.dataset.day === day));
+  day === 'history' ? renderHistory() : renderDay(day);
+}
+
+// ══════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════
+function renderHome() {
+  const h = new Date().getHours();
+  const greeting = h < 12 ? 'Bom dia 💪' : h < 18 ? 'Boa tarde 💪' : 'Boa noite 💪';
+  const showInstall = deferredPrompt && !localStorage.getItem('installDismissed');
+
+  document.getElementById('main').innerHTML = `
+    <div class="home-view">
+      <div class="home-greeting">${greeting}</div>
+      <div class="home-title">Selecione<br>seu treino</div>
+      ${showInstall ? `
+        <div class="install-banner" id="installBanner">
+          <div class="install-banner-text">
+            <strong>Instalar como app</strong>
+            Adicione à tela inicial e use offline
+          </div>
+          <button class="install-btn" onclick="installApp()">Instalar</button>
+        </div>
+      ` : ''}
+      <div class="home-cards" style="${showInstall ? 'margin-top:0.75rem' : ''}">
+        ${Object.entries(DAYS).map(([dk, info]) => {
+          const done = savedDays[dk] === todayKey();
+          return `<div class="home-card ${done ? 'done-card' : ''}" data-day="${dk}" onclick="selectDay('${dk}')">
+            ${done ? '<div class="home-card-done">✓ feito</div>' : ''}
+            <div class="home-card-title" style="color:${info.color}">${info.name}</div>
+            <div class="home-card-sub">${{push:'Empurrar',pull:'Puxar',legs:'Pernas',upper:'Superior',lower:'Inferior'}[dk]}</div>
+            <div class="home-card-excount">${PROGRAM[dk].length} exercícios</div>
+          </div>`;
+        }).join('')}
+        <div class="home-card home-history-card" onclick="selectDay('history')">
+          <div>
+            <div class="home-card-title">📊 Histórico</div>
+            <div class="home-card-sub">Progressão de cargas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════
+// DAY VIEW
+// ══════════════════════════════════════════
+function renderDay(dayKey) {
+  const exercises = PROGRAM[dayKey];
+  const dayInfo = DAYS[dayKey];
+  const doneExs = exercises.filter(ex => (todaySets[dayKey][ex.id]||[]).some(s=>s.done)).length;
+  const isSaved = savedDays[dayKey] === todayKey();
+
+  // Get last session (most recent day that's not today)
+  let lastSessionData = null;
+  const allKeys = storageKeys(`carga:session:${dayKey}:`).reverse();
+  for (const k of allKeys) {
+    const date = k.split(':')[3];
+    if (date !== todayKey()) { lastSessionData = storageGet(k); break; }
+  }
+
+  document.getElementById('main').innerHTML = `
+    <div class="section-header">
+      <div class="section-title" style="color:${dayInfo.color}">${dayInfo.name}</div>
+      <div class="section-sub">${doneExs}/${exercises.length} exerc.</div>
+    </div>
+    <div class="session-bar">
+      <div class="session-bar-info">Hoje: <strong>${today()}</strong> · ${exercises.length} exercícios</div>
+      <button class="save-btn ${isSaved?'saved':''}" onclick="handleSave('${dayKey}')" id="saveBtn">
+        ${isSaved ? '✓ Salvo' : '💾 Salvar'}
+      </button>
+    </div>
+    <div id="exList">
+      ${exercises.map(ex => renderExCard(ex, dayKey, lastSessionData)).join('')}
+    </div>
+  `;
+}
+
+function renderExCard(ex, dayKey, lastSession) {
+  const sets = todaySets[dayKey][ex.id] || [];
+  const doneCount = sets.filter(s=>s.done).length;
+  const isComplete = sets.length > 0 && doneCount === sets.length;
+  const isOpen = openCards.has(ex.id);
+  const lastSets = lastSession && lastSession[ex.id] ? lastSession[ex.id] : [];
+
+  return `
+    <div class="ex-card ${sets.length>0?'has-sets':''} ${isComplete?'completed':''} ${isOpen?'open':''}" id="card_${ex.id}">
+      <div class="ex-header" onclick="toggleCard('${ex.id}','${dayKey}')">
+        <div class="ex-priority ${ex.priority===1?'p1':'p2'}">${ex.priority}</div>
+        <div class="ex-info">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-meta">
+            <span class="ex-tag ${ex.rir==='0 RIR'?'rir0':''}">${ex.rir}</span>
+            <span class="ex-tag">5–9 reps</span>
+            <span class="ex-tag muscle">${ex.shortMuscle}</span>
+          </div>
+        </div>
+        <div class="ex-right">
+          <div class="ex-sets-count ${sets.length>0?'has':''}">${sets.length>0?`${doneCount}/${sets.length}`:''}</div>
+          <div class="ex-tip-btn" onclick="event.stopPropagation();openModal('${ex.id}','${dayKey}')">📋</div>
+          <div class="ex-chevron">▼</div>
+        </div>
+      </div>
+      <div class="set-log" id="log_${ex.id}">
+        ${lastSets.length>0?`
+          <div class="last-session">
+            <div class="last-session-label">Última sessão</div>
+            <div class="last-sets">${lastSets.map((s,i)=>`<div class="last-set-chip">${i+1}: ${s.weight||'—'}kg × ${s.reps||'—'}</div>`).join('')}</div>
+          </div>`:''
+        }
+        <div class="sets-header"><span>#</span><span>Carga (kg)</span><span>Reps</span><span>✓</span></div>
+        <div id="sets_${ex.id}">${sets.map((s,i)=>renderSetRow(ex.id,i,s)).join('')}</div>
+        <div class="sets-actions">
+          <button class="add-set-btn" onclick="addSet('${ex.id}','${dayKey}')">+ Adicionar série</button>
+          ${sets.length>0?`<button class="remove-set-btn" onclick="removeSet('${ex.id}','${dayKey}')">−</button>`:''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderSetRow(exId, index, s) {
+  return `
+    <div class="set-row ${s.done?'done-row':''}" id="row_${exId}_${index}">
+      <div class="set-num">${index+1}</div>
+      <input type="number" class="set-input ${s.weight?'filled':''}" placeholder="kg" value="${s.weight||''}" step="0.5" min="0"
+        onchange="updateSet('${exId}',${index},'weight',this.value)" oninput="updateSet('${exId}',${index},'weight',this.value)"/>
+      <input type="number" class="set-input ${s.reps?'filled':''}" placeholder="reps" value="${s.reps||''}" min="1" max="50"
+        onchange="updateSet('${exId}',${index},'reps',this.value)" oninput="updateSet('${exId}',${index},'reps',this.value)"/>
+      <div class="set-done ${s.done?'checked':''}" onclick="toggleSetDone('${exId}',${index})">${s.done?'✓':''}</div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// CARD / SET LOGIC
+// ══════════════════════════════════════════
+function toggleCard(exId, dayKey) {
+  const card = document.getElementById(`card_${exId}`);
+  if (openCards.has(exId)) { openCards.delete(exId); card.classList.remove('open'); }
+  else {
+    openCards.add(exId); card.classList.add('open');
+    if (!(todaySets[dayKey][exId]||[]).length) addSet(exId, dayKey, true);
+  }
+}
+
+function ensureSets(exId, dayKey) {
+  if (!todaySets[dayKey]) todaySets[dayKey] = {};
+  if (!todaySets[dayKey][exId]) todaySets[dayKey][exId] = [];
+}
+
+function addSet(exId, dayKey, silent=false) {
+  ensureSets(exId, dayKey);
+  const sets = todaySets[dayKey][exId];
+  const last = sets.length > 0 ? sets[sets.length-1] : { weight:'', reps:'' };
+  sets.push({ weight: last.weight, reps:'', done:false });
+  refreshSetsUI(exId, dayKey);
+}
+
+function removeSet(exId, dayKey) {
+  ensureSets(exId, dayKey);
+  if (todaySets[dayKey][exId].length > 0) todaySets[dayKey][exId].pop();
+  refreshSetsUI(exId, dayKey);
+}
+
+function updateSet(exId, index, field, value) {
+  const dayKey = currentDay;
+  ensureSets(exId, dayKey);
+  if (todaySets[dayKey][exId][index]) {
+    todaySets[dayKey][exId][index][field] = value;
+    if (event && event.target) event.target.classList.toggle('filled', value !== '');
+  }
+}
+
+function toggleSetDone(exId, index) {
+  const dayKey = currentDay;
+  ensureSets(exId, dayKey);
+  const set = todaySets[dayKey][exId][index];
+  if (!set) return;
+  set.done = !set.done;
+  const row = document.getElementById(`row_${exId}_${index}`);
+  if (row) {
+    row.classList.toggle('done-row', set.done);
+    const btn = row.querySelector('.set-done');
+    btn.classList.toggle('checked', set.done);
+    btn.textContent = set.done ? '✓' : '';
+  }
+  updateCardState(exId, dayKey);
+}
+
+function refreshSetsUI(exId, dayKey) {
+  const sets = todaySets[dayKey][exId];
+  const cont = document.getElementById(`sets_${exId}`);
+  const card = document.getElementById(`card_${exId}`);
+  if (!cont) return;
+  cont.innerHTML = sets.map((s,i) => renderSetRow(exId, i, s)).join('');
+  const actions = card.querySelector('.sets-actions');
+  if (actions) actions.innerHTML = `
+    <button class="add-set-btn" onclick="addSet('${exId}','${dayKey}')">+ Adicionar série</button>
+    ${sets.length>0?`<button class="remove-set-btn" onclick="removeSet('${exId}','${dayKey}')">−</button>`:''}
+  `;
+  updateCardState(exId, dayKey);
+}
+
+function updateCardState(exId, dayKey) {
+  const sets = todaySets[dayKey][exId] || [];
+  const card = document.getElementById(`card_${exId}`);
+  const countEl = card?.querySelector('.ex-sets-count');
+  if (!card || !countEl) return;
+  const done = sets.filter(s=>s.done).length;
+  card.classList.toggle('has-sets', sets.length > 0);
+  card.classList.toggle('completed', sets.length > 0 && done === sets.length);
+  countEl.classList.toggle('has', sets.length > 0);
+  countEl.textContent = sets.length > 0 ? `${done}/${sets.length}` : '';
+}
+
+// ══════════════════════════════════════════
+// SAVE
+// ══════════════════════════════════════════
+function handleSave(dayKey) {
+  const ok = saveSession(dayKey);
+  if (ok) {
+    const btn = document.getElementById('saveBtn');
+    if (btn) { btn.textContent = '✓ Salvo'; btn.classList.add('saved'); }
+    markTabDone(dayKey);
+    showToast('✓ Treino salvo!');
+  }
+}
+
+function markTabDone(dayKey) {
+  document.querySelector(`.day-tab[data-day="${dayKey}"]`)?.classList.add('done');
+}
+
+// ══════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════
+function renderHistory() {
+  const history = getAllHistory();
+  const hasAny = Object.values(history).some(d => d.length > 0);
+
+  if (!hasAny) {
+    document.getElementById('main').innerHTML = `
+      <div class="history-view">
+        <div class="no-history">
+          <div class="no-history-icon">📋</div>
+          <div>Nenhum treino registrado ainda.<br>Complete e salve seu primeiro treino!</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const html = Object.entries(history).map(([dayKey, sessions]) => {
+    if (!sessions.length) return '';
+    const dayInfo = DAYS[dayKey];
+    return `
+      <div class="history-day-section">
+        <div class="history-day-title">
+          <span class="history-dot" style="background:${dayInfo.color}"></span>${dayInfo.name}
+        </div>
+        ${sessions.map(sess => `
+          <div class="history-session">
+            <div class="history-session-date">${formatDateKey(sess.date)}</div>
+            ${PROGRAM[dayKey].map(ex => {
+              const sets = sess.data[ex.id];
+              if (!sets || !sets.length) return '';
+              return `
+                <div class="history-ex">
+                  <div class="history-ex-name">${ex.name}</div>
+                  <div class="history-ex-sets">
+                    ${sets.map((s,i) => `<div class="history-chip ${s.done?'done':''}">${i+1}: ${s.weight||'—'}kg×${s.reps||'—'}${s.done?' ✓':''}</div>`).join('')}
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>`).join('')}
+      </div>`;
+  }).join('');
+
+  document.getElementById('main').innerHTML = `
+    <div class="history-view">
+      <div class="section-header" style="padding-top:0.5rem">
+        <div class="section-title">Histórico</div>
+        <div class="section-sub">Últimas sessões</div>
+      </div>
+      ${html}
+    </div>`;
+}
+
+function formatDateKey(k) {
+  if (!k) return '—';
+  const [y,m,d] = k.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// ══════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════
+function openModal(exId, dayKey) {
+  const ex = PROGRAM[dayKey].find(e => e.id === exId);
+  if (!ex) return;
+  const color = DAYS[dayKey]?.color || '#888';
+  document.getElementById('modalTitle').textContent = ex.name;
+  document.getElementById('modalMuscle').textContent = ex.muscle;
+  document.getElementById('modalTag').textContent = `${ex.rir} · 5–9 reps · Prioridade ${ex.priority}`;
+
+  let html = '';
+  if (ex.tips?.length) html += `
+    <div class="exec-section">
+      <div class="exec-section-title">Como executar</div>
+      ${ex.tips.map((t,i) => `
+        <div class="exec-tip">
+          <div class="exec-tip-num" style="color:${color}">${i+1}</div>
+          <div class="exec-tip-text">${t.text}</div>
+        </div>`).join('')}
+    </div>`;
+  if (ex.cues?.length) html += `
+    <div class="exec-section">
+      <div class="exec-section-title">Foco mental (cues)</div>
+      ${ex.cues.map(c => `
+        <div class="exec-cue">
+          <div class="exec-cue-icon">→</div>
+          <div class="exec-cue-text">${c}</div>
+        </div>`).join('')}
+    </div>`;
+  if (ex.warning) html += `
+    <div class="exec-section">
+      <div class="exec-warning">
+        <div class="exec-warning-label">⚠ Atenção</div>
+        <div class="exec-warning-text">${ex.warning}</div>
+      </div>
+    </div>`;
+  if (ex.referenceLoad) html += `
+    <div class="exec-section">
+      <div class="exec-warning" style="background:rgba(74,144,232,0.08);border-color:rgba(74,144,232,0.25)">
+        <div class="exec-warning-label" style="color:#4a90e8">📌 Carga de Referência</div>
+        <div class="exec-warning-text">Sua carga anotada: <strong style="color:var(--text)">${ex.referenceLoad} kg</strong>. Use como ponto de partida.</div>
+      </div>
+    </div>`;
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
